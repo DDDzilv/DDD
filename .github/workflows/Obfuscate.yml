@@ -1,0 +1,53 @@
+name: Build Obfuscate BPB Panel
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 1 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "latest"
+
+      - name: Install dependencies
+        run: |
+          npm install -g javascript-obfuscator全局安装 JavaScript 混淆器：`npm install -g javascript-obfuscator`
+
+      - name: Clone BPB workjs
+        run: |
+          wget -O origin.js https://raw.githubusercontent.com/bia-pain-bache/BPB-Worker-Panel/refs/heads/main/build/unobfuscated-worker.jsjs https://raw.githubusercontent.com/bia-pain-bache/BPB-Worker-Panel/refs/heads/main/build/unobfuscated-worker.js
+
+      - name: Obfuscate BPB worker js
+        run: |
+          javascript-obfuscator origin.js --output _worker.js \使用 `javascript-obfuscator` 对 `origin.js` 进行混淆处理，并将输出结果保存为 `_worker.js` 。
+          --compact true \   ——compact true \
+          --identifier-names-generator hexadecimal \--标识符名称生成器 十六进制 \
+          --rename-globals true \   --重命名全局变量 true \
+          --string-array true \   --字符串数组 true \
+          --string-array-encoding 'base64' \--字符串数组编码 'base64' \
+          --string-array-threshold 0.75 \--字符串数组阈值 0.75 \
+          --transform-object-keys true \-- 将对象键转换为 true \
+          --self-defending false \   自我防卫的虚假论调
+          --simplify true   ——简化真实
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: main
+          commit_message: ':arrow_up: update latest bpb panel'
+          commit_author: 'github-actions[bot] <github-actions[bot]@users.noreply.github.com>'
+          push_options: '--set-upstream'
